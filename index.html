@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OCR Form Review</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+    <header>
+      <h1>Document → OCR → Review → Submit</h1>
+    </header>
+
+    <main>
+
+      <!-- Step 1: Upload or Capture -->
+      <section class="card">
+        <div class="section">
+          <h2>1) Upload or Capture</h2>
+          <div class="grid-1">
+            <!-- File input + drag & drop -->
+            <div class="drop" id="drop">
+              <input
+                id="fileInput"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                style="display: none"
+              />
+              <div class="row" style="justify-content: center">
+                <button class="btn" id="pickBtn">Choose Image</button>
+                <span class="muted small">Or drag & drop a photo here</span>
+              </div>
+            </div>
+            
+            <!-- Preview processed image -->
+            <div class="preview"><img id="preview" alt="Preview" /></div>
+
+            <!-- Image preprocessing options -->
+            <div class="grid">
+              <div>
+                <label class="small">Image Preprocessing</label>
+                <div class="row">
+                  <label class="pill small"
+                    ><input type="checkbox" id="toGray" /> Grayscale</label
+                  >
+                  <label class="pill small"
+                    ><input type="checkbox" id="autoRotate" checked />
+                    Auto-rotate</label
+                  >
+                  <label class="pill small"
+                    ><input type="checkbox" id="binarize" /> Binarize</label
+                  >
+                  <label class="pill small"
+                    ><input type="checkbox" id="sharpen" /> Sharpen</label
+                  >
+                </div>
+              </div>
+              <div>
+                <label class="small">Downscale (px width)</label>
+                <input type="text" id="maxW" value="1600" />
+              </div>
+            </div>
+
+            <!-- Buttons for preprocessing + OCR -->
+            <div class="grid">
+              <button class="btn" id="preprocessBtn">Apply Preprocess</button>
+              <button class="btn primary" id="ocrBtn" disabled>Run OCR</button>
+            </div>
+
+            <!-- Progress + Status -->
+            <div>
+              <div class="progress" aria-hidden="true">
+                <div id="bar"></div>
+              </div>
+              <div class="small muted" id="status">Idle</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Review extracted fields -->
+      <section class="card">
+        <div class="section">
+          <h2>2) Review & Correct</h2>
+          <div class="grid">
+            <div>
+              <label>API Endpoint (POST JSON)</label>
+              <input
+                id="apiUrl"
+                type="url"
+                placeholder="https://example.com/api/submit"
+                value="https://httpbin.org/post"
+              />
+            </div>
+
+            <!-- Document type (controls regex extraction config) -->
+            <div>
+              <label>Document Type</label>
+              <select id="docType">
+                <option value="die_repair_request" selected>
+                  Die Repair Request
+                </option>
+                <option value="generic">Generic (best effort)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Container where JS will inject fields -->
+        <div class="section" id="fields">
+
+        <!-- Submit controls -->
+        </div>
+        <div class="section">
+          <div class="row">
+            <button class="btn" id="resetBtn">Reset</button>
+            <button class="btn primary" id="submitBtn" disabled>
+              Submit to API
+            </button>
+          </div>
+          <p class="small muted">
+            The JSON payload is validated and sent over
+            <code class="inline">fetch()</code>. No images leave the device
+            during OCR; only the final structured data is posted.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Tip: use the provided sample image if you just want to test.</span>
+      <span class="small">Built with Tesseract.js (browser worker)</span>
+    </footer>
+
+    <script src="https://unpkg.com/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
