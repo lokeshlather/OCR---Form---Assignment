@@ -15,7 +15,7 @@ function setStatus(msg, p) {
   if (typeof p === "number") barEl.style.width = Math.round(p * 100) + "%";
 }
 
-// Utility: Convert base64 DataURL to Blob (Tesseract works better with blobs)
+// Utility: Convert base64 DataURL to Blob
 function dataURLToBlob(dataURL) {
   const parts = dataURL.split(",");
   const mime = parts[0].match(/:(.*?);/)[1];
@@ -140,26 +140,27 @@ async function preprocessImage(file) {
   return blob;
 }
 
-// OCR (Tesseract.js)
+// OCR
 async function runOCR(blob) {
-  setStatus("Starting OCR…", 0);
+  setStatus("Sending to OCR.Space API…", 0);
 
-  const worker = await Tesseract.createWorker("eng", 1, {
-    logger: (m) => {
-      if (m.status && m.progress != null) {
-        setStatus(`${m.status}…`, m.progress);
-      }
-    },
-  });
+  try {
+    const formData = new FormData();
+    formData.append("file", blob, "image.png");
 
-  const { data } = await worker.recognize(blob, {
-    tessedit_char_whitelist:
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-:/.,() ",
-  });
+    const response = await fetch("http://localhost:5000/ocr", {
+      method: "POST",
+      body: formData,
+    });
 
-  await worker.terminate();
-  setStatus("OCR complete", 1);
-  return data.text || "";
+    const result = await response.json();
+    setStatus("OCR complete", 1);
+    return result.text || "";
+  } catch (err) {
+    console.error("OCR request failed:", err);
+    setStatus("OCR failed");
+    return "";
+  }
 }
 
 // ---------- Field Extraction ----------
